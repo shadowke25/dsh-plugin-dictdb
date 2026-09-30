@@ -1,0 +1,62 @@
+{
+  "name": "dsh-plugin-dictdb",
+  "version": "0.1.0",
+  "description": "Read-only pentest wordlist lookup for DeepSeek Harness: the agent searches a dictdb dictionary database, inspects entries and previews contents on its own, and gets back absolute paths ready for ffuf / dirsearch / hydra -w.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --import ./scripts/stubs/register.mjs scripts/smoke.mjs",
+    "test:description": "node --import ./scripts/stubs/register.mjs scripts/verify-description.mjs",
+    "probe": "node scripts/probe-stdio.mjs"
+  },
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "wordlist",
+    "wordlists",
+    "pentest",
+    "penetration-testing",
+    "security",
+    "dictdb",
+    "ffuf",
+    "dirsearch",
+    "hydra",
+    "fuzzing"
+  ],
+  "author": "shadowke25",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shadowke25/dsh-plugin-dictdb.git"
+  },
+  "homepage": "https://github.com/shadowke25/dsh-plugin-dictdb#readme",
+  "bugs": {
+    "url": "https://github.com/shadowke25/dsh-plugin-dictdb/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-tools": "*",
+    "@deepseek-ai/schemastery": "*"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

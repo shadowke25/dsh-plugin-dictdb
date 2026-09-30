@@ -1,0 +1,26 @@
+# dsh-plugin-dictdb bundle patch: inserts its host-side tool row into the
+# profile tree. Install with
+#   dsh plugin --profile <name> add dsh-plugin-dictdb
+#
+# CONFIGURATION IS REQUIRED — the plugin ships no machine-specific path.
+# Set dictdbPath below, or export DICTDB_PATH, or rely on an existing
+# DICTDB_HOME (dictdb's own data-root variable, which points at the project
+# root in dictdb's default single-directory layout).
+- insert:
+    - id: dsh-plugin-dictdb
+      name: dsh-plugin-dictdb
+      # config:
+      #   # dictdb project root — the directory holding the `dictdb/` package.
+      #   # Required (or supply DICTDB_PATH / DICTDB_HOME in the environment).
+      #   dictdbPath: '/path/to/dictdb'
+      #   # Interpreter. Empty = auto-detect <dictdbPath>/.venv/{Scripts,bin}/python,
+      #   # then fall back to `python` on PATH.
+      #   pythonPath: ''
+      #   # dictdb data root (DICTDB_HOME). Empty = env DICTDB_HOME, then dictdbPath.
+      #   # Must be writable: dictdb uses SQLite WAL and writes last_search.json.
+      #   dataHome: ''
+      #   timeoutMs: 30000
+      #   # Rows shown when the model does not ask for a count.
+      #   defaultHead: 20
+      #   # Hard ceiling for preview rows, enforced plugin-side.
+      #   maxHead: 200
