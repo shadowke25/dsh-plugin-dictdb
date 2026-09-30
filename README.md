@@ -62,7 +62,9 @@ agent：→ dictdb_search(category="dir", tag="fast")    自己挑，不用问�
 dsh plugin --profile <profile> add github:shadowke25/dsh-plugin-dictdb
 ```
 
-> **无需构建授权。** 本包没有构建步骤——`lib/index.js` 就是源码，直接提交在仓库里。因此不存在 DSH 文档里提到的「git 安装拿到源码却没有 `lib/` 输出」问题，pnpm 也不会要求你为 `prepare` 脚本授权。
+> **首次安装约需 2 分钟。** pnpm 在这段时间不打印任何进度，看起来像卡住——不要按 Ctrl+C，否则会留下半成品状态（临时目录残留、锁文件未释放）。
+>
+> **无需构建授权。** 本包没有构建步骤——`lib/index.js` 就是源码，直接提交在仓库里。因此不存在 DSH 文档里提到的「git 安装拿到源码却没有 `lib/` 输出」问题，pnpm 也不会要求你为 `prepare` 脚本授权（实测确认）。
 >
 > 如果 pnpm 仍然索要授权（不同版本行为可能不同），按它打印的包键写进 profile 的 `pnpm-workspace.yaml` 即可：
 >
@@ -70,6 +72,15 @@ dsh plugin --profile <profile> add github:shadowke25/dsh-plugin-dictdb
 > allowBuilds:
 >   dsh-plugin-dictdb: true
 > ```
+
+> [!IMPORTANT]
+> **切换安装方式前必须先卸载。** 从本地目录安装会创建目录联接（junction）；若直接改用 tarball / GitHub 安装，pnpm 清理旧目录时可能**穿透联接删掉你的源码**（实测发生过，会删掉 `.git`）。
+>
+> ```sh
+> dsh plugin --profile <profile> remove dsh-plugin-dictdb
+> ```
+>
+> 先完成这一步再换装。
 
 锁定版本：
 
@@ -179,13 +190,30 @@ dictdb 已经拥有字段投影、选择器语法和 JSON 信封。在 JS 侧重
 
 ## 故障排查
 
-**工具没出现** —— 先确认层在：
+**工具没出现** —— 先确认插件层在 profile 里：
 
 ```sh
-dsh --profile <profile> --dump-config | grep dictdb
+cat "$DSH_HOME/profiles/<profile>/package.json"
 ```
 
-层在但工具不在，说明插件加载失败，看 DSH 启动日志里 `dictdb` 相关条目。
+`dsh.profile.bundles` 应包含 `dsh-plugin-dictdb`，`dependencies` 应有对应条目。
+
+> 不要用 `dsh --profile <profile> --dump-config` 排查：由 Electron 应用管理的 profile（如 `desktop`）会拒绝该命令，报 `profile "..." is managed exclusively by the Electron application`。
+
+层在但工具不在，说明插件加载失败。检查 `$DSH_HOME/profiles/<profile>/.plugin-manager/logs/` 下的 `pnpm.log`，以及 DSH 启动日志里 `dictdb` 相关条目。
+
+**装到一半卡住 / 装完状态异常** —— pnpm 中断会留下 `node_modules/*_tmp_*` 目录和 `package.json.lock`。清理后重装：
+
+```sh
+rm -rf "$DSH_HOME/profiles/<profile>/node_modules/"*_tmp_*
+rm -f  "$DSH_HOME/profiles/<profile>/package.json.lock"
+```
+
+若 `node_modules/dsh-plugin-dictdb` 是个目录联接（之前用本地目录装过），**必须用 `rmdir` 删它**，不要用 `rm -rf`——后者可能穿透联接删掉源码：
+
+```sh
+cmd /c rmdir "$DSH_HOME\profiles\<profile>\node_modules\dsh-plugin-dictdb"
+```
 
 **`dictdb 插件尚未配置`** —— 没找到 dictdb 项目根。按上面[配置](#配置必读)一节任选一种方式。
 
